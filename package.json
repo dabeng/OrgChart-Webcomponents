@@ -1,0 +1,49 @@
+{
+  "name": "orgchart-webcomponents",
+  "version": "0.0.1",
+  "description": "It's a simple and direct organization chart plugin. Anytime you want a tree-like chart, you can turn to OrgChart. Edit",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.8",
+    "babel-preset-es2015": "^6.18.0",
+    "browser-sync": "^2.18.2",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-clean-css": "^2.2.0",
+    "gulp-csslint": "^1.0.0",
+    "gulp-eslint": "^3.0.1",
+    "gulp-plumber": "^1.1.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^1.9.1",
+    "gulp-uglify": "^2.0.0",
+    "gulp-util": "^3.0.7",
+    "merge-stream": "^1.0.1",
+    "run-sequence": "^1.2.2",
+    "webpack": "^1.14.0"
+  },
+  "dependencies": {
+    "webcomponents.js": "^0.7.23"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dabeng/OrgChart-Webcomponents.git"
+  },
+  "keywords": [
+    "web components",
+    "es6",
+    "ES2015",
+    "organization chart",
+    "tree-like"
+  ],
+  "author": "dabeng",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dabeng/OrgChart-Webcomponents/issues"
+  },
+  "homepage": "https://github.com/dabeng/OrgChart-Webcomponents#readme"
+}
