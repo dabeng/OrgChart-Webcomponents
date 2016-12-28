@@ -1,7 +1,7 @@
-import OrgChart from '../js/orgchart.min.js';
+import OrgChart from '../js/orgchart-webcomponents.min.js';
 
 function closest(el, fn) {
-  return el && ((fn(el) && el !== document.querySelector('.orgchart')) ? el : closest(el.parentNode, fn));
+  return el && ((fn(el) && el !== document.querySelector('org-chart')) ? el : closest(el.parentNode, fn));
 }
 
 function addClass(elements, classNames) {
@@ -54,7 +54,7 @@ function clickChart(event) {
 }
 
 function toggleViewState() {
-  let chart = document.querySelector('.orgchart');
+  let chart = document.querySelector('org-chart');
   chart.classList.toggle('view-state', this.value !== 'view');
   document.getElementById('edit-panel').classList.toggle('view-state', this.value === 'view');
   if (this.value === 'edit') {
@@ -92,8 +92,7 @@ function removeInputs() {
 }
 
 function addNodes(orgchart) {
-  let chartContainer = document.getElementById('chart-container'),
-    nodeVals = [];
+  let nodeVals = [];
 
   Array.from(document.getElementById('new-nodelist').querySelectorAll('.new-node'))
     .forEach(item => {
@@ -125,9 +124,8 @@ function addNodes(orgchart) {
   }
 
   if (nodeType.value === 'parent') {
-    if (!chartContainer.children.length) {// if the original chart has been deleted
+    if (!document.querySelector('#chart-container').children.length) {// if the original chart has been deleted
       orgchart = new OrgChart({
-        'chartContainer': '#chart-container',
         'data' : { 'name': nodeVals[0] },
         'exportButton': true,
         'exportFilename': 'SportsChart',
@@ -138,7 +136,7 @@ function addNodes(orgchart) {
       });
       orgchart.chart.classList.add('view-state');
     } else {
-      orgchart.addParent(chartContainer.querySelector('.node'), { 'name': nodeVals[0], 'Id': getId() });
+      orgchart.addParent(orgchart.querySelector('.node'), { 'name': nodeVals[0], 'Id': getId() });
     }
   } else if (nodeType.value === 'siblings') {
     orgchart.addSiblings(selectedNode, {
@@ -212,7 +210,6 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
   orgchart = new OrgChart({
-    'chartContainer': '#chart-container',
     'data' : datascource,
     'exportButton': true,
     'exportFilename': 'SportsChart',
@@ -221,9 +218,10 @@ document.addEventListener('DOMContentLoaded', function () {
       node.id = getId();
     }
   });
+  document.querySelector('#chart-container').appendChild(orgchart);
 
   bindEventHandler('.node', 'click', clickNode, '#chart-container');
-  bindEventHandler('.orgchart', 'click', clickChart, '#chart-container');
+  bindEventHandler('org-chart', 'click', clickChart, '#chart-container');
   bindEventHandler('input[name="chart-state"]', 'click', toggleViewState);
   bindEventHandler('input[name="node-type"]', 'click', toggleNodeType);
   document.getElementById('btn-add-input').addEventListener('click', addInputs);

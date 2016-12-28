@@ -31,6 +31,6 @@ document.addEventListener('DOMContentLoaded', function () {
     'nodeContent': 'title'
   });
 
-  document.body.appendChild(orgchart); 
+  document.querySelector('#chart-container').appendChild(orgchart); 
 
 });

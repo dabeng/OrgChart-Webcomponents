@@ -27,6 +27,7 @@
     "webpack": "^1.14.0"
   },
   "dependencies": {
+    "font-awesome": "^4.7.0",
     "webcomponents.js": "^0.7.23"
   },
   "repository": {

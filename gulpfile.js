@@ -52,13 +52,13 @@ gulp.task('eslint', function () {
 
 gulp.task('js', ['eslint', 'cleanJS'], function () {
   return gulp.src(['src/*.js'])
-    .pipe(sourcemaps.init())
+    // .pipe(sourcemaps.init())
     .pipe(babel(
       {presets: ['es2015']}
     ))
-    .pipe(uglify())
+    // .pipe(uglify())
     .pipe(rename('orgchart-webcomponents.min.js'))
-    .pipe(sourcemaps.write())
+    // .pipe(sourcemaps.write())
     .pipe(gulp.dest('build/js'))
     .pipe(gulp.dest('demo/js'));
 });
@@ -75,16 +75,10 @@ gulp.task('copyVendorAssets', function() {
   var fontawesomeFonts = gulp.src('node_modules/font-awesome/fonts/*')
     .pipe(gulp.dest('demo/css/fonts'));
 
-  var html2canvas = gulp.src('node_modules/html2canvas/dist/html2canvas.min.js')
-    .pipe(gulp.dest('demo/js/vendor'));
-
   var webcomponents = gulp.src('node_modules/webcomponents.js/webcomponents.min.js')
     .pipe(gulp.dest('demo/js/vendor'));
 
-  var customelements = gulp.src('node_modules/custom-elements/dist/CustomElements.min.js')
-    .pipe(gulp.dest('demo/js/vendor'));
-
-  return merge(fontawesomeCSS, fontawesomeFonts, html2canvas, webcomponents, customelements);
+  return merge(fontawesomeCSS, fontawesomeFonts, webcomponents);
 });
 
 gulp.task('build', ['css', 'js', 'watch']);

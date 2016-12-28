@@ -2,7 +2,7 @@
   display: none;
 }
 
-.orgchart .drill-icon {
+org-chart .drill-icon {
   transition: opacity .5s;
   opacity: 0;
   right: -10px;
@@ -13,10 +13,10 @@
   position: absolute;
 }
 
-.orgchart .drill-icon:hover {
+org-chart .drill-icon:hover {
   color: #449d44;
 }
 
-.orgchart .node:hover .drill-icon {
+org-chart .node:hover .drill-icon {
   opacity: 1;
 }

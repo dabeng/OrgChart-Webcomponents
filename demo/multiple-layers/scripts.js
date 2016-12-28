@@ -1,4 +1,4 @@
-import OrgChart from '../js/orgchart.min.js';
+import OrgChart from '../js/orgchart-webcomponents.min.js';
 
 Mock.mock('/orgchart/root-node', {
       'className': 'root-node',
@@ -46,7 +46,6 @@ function closest(el, fn) {
 
 function initOrgchart(rootClass) {
   let orgchart = new OrgChart({
-    'chartContainer': '#chart-container',
     'chartClass': rootClass,
     'data' : '/orgchart/' + rootClass,
     'nodeContent': 'dept',
@@ -59,8 +58,8 @@ function initOrgchart(rootClass) {
 
         drillDownIcon.setAttribute('class', 'fa fa-arrow-circle-down drill-icon');
         drillDownIcon.addEventListener('click', function() {
-          chartContainer.querySelector('.orgchart:not(.hidden)').classList.add('hidden');
-          let assoChart = chartContainer.querySelector('.orgchart.' + assoClass);
+          chartContainer.querySelector('org-chart:not(.hidden)').classList.add('hidden');
+          let assoChart = chartContainer.querySelector('org-chart.' + assoClass);
 
           if (!assoChart) {
             initOrgchart(assoClass);
@@ -75,15 +74,16 @@ function initOrgchart(rootClass) {
 
         drillUpIcon.setAttribute('class', 'fa fa-arrow-circle-up drill-icon');
         drillUpIcon.addEventListener('click', function() {
-          chartContainer.querySelector('.orgchart:not(.hidden)').classList.add('hidden');
+          chartContainer.querySelector('org-chart:not(.hidden)').classList.add('hidden');
           closest(chartContainer.querySelector('.drill-down.' + assoClass), (el) => {
-            return el.classList && el.classList.contains('orgchart');
+            return el.nodeName === 'ORG-CHART';
           }).classList.remove('hidden');
         });
         node.appendChild(drillUpIcon);
       }
     }
   });
+  document.querySelector('#chart-container').appendChild(orgchart);
 }
 
 document.addEventListener('DOMContentLoaded', function () {

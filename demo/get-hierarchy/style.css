@@ -13,15 +13,6 @@ pre {
   margin-left: 20px;
 }
 
-.home-link {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  display: block;
-  width: 100%;
-  text-align: right;
-}
-
 #btn-export-hier {
   display: inline-block;
   position: relative;

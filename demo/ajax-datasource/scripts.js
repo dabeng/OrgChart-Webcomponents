@@ -1,4 +1,4 @@
-import OrgChart from '../js/orgchart.min.js';
+import OrgChart from '../js/orgchart-webcomponents.min.js';
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -29,10 +29,11 @@ document.addEventListener('DOMContentLoaded', function () {
   Mock.setup({ timeout: 1000 });
 
   let orgchart = new OrgChart({
-    'chartContainer': '#chart-container',
     'data' : '/orgchart/initdata',
     'depth': 2,
     'nodeContent': 'title'
   });
+
+  document.querySelector('#chart-container').appendChild(orgchart);
 
 });

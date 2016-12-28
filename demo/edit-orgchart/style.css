@@ -2,19 +2,19 @@
   background-color: #eee;
   height: 300px;
 }
-.orgchart {
+org-chart {
   background: #fff;
 }
 
-.orgchart.view-state .edge {
+org-chart.view-state .edge {
   display: none;
 }
 
-.orgchart .node {
+org-chart .node {
   width: 150px;
 }
 
-.orgchart .node .title .symbol {
+org-chart .node .title .symbol {
   margin-top: 1px; 
 }
 

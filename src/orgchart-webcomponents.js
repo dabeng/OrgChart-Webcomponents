@@ -8,7 +8,7 @@ export default class OrgChart extends HTMLElement {
 
     // shadowRoot.innerHTML = `
     //   <style> </style>
-    //   <div class="oc-container"> </div>
+    //   <div class="container"> </div>
     // `;
 
     Promise.prototype.finally = function (callback) {
@@ -27,8 +27,6 @@ export default class OrgChart extends HTMLElement {
         'toggleSiblingsResp': false,
         'depth': 999,
         'chartClass': '',
-        'exportButton': false,
-        'exportFilename': 'OrgChart',
         'parentNodeSymbol': 'fa-users',
         'draggable': false,
         'direction': 't2b',
@@ -37,69 +35,56 @@ export default class OrgChart extends HTMLElement {
       },
       opts = Object.assign(defaultOptions, options),
       data = opts.data,
-      chart = document.createElement('div'),
-      chartContainer = this;
+      chart = document.createElement('div');
 
     this.options = opts;
     delete this.options.data;
-    this.chart = chart;
-    // this.chartContainer = chartContainer;
-    chart.dataset.options = JSON.stringify(opts);
-    chart.setAttribute('class', 'orgchart' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') +
+    this.dataset.options = JSON.stringify(opts);
+    this.setAttribute('class', 'orgchart' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') +
       (opts.direction !== 't2b' ? ' ' + opts.direction : ''));
     if (typeof data === 'object') { // local json datasource
-      this.buildHierarchy(chart, opts.ajaxURL ? data : this._attachRel(data, '00'), 0);
+      this.buildHierarchy(this, opts.ajaxURL ? data : this._attachRel(data, '00'), 0);
     } else if (typeof data === 'string' && data.startsWith('#')) { // ul datasource
-      this.buildHierarchy(chart, this._buildJsonDS(document.querySelector(data).children[0]), 0);
+      this.buildHierarchy(this, this._buildJsonDS(document.querySelector(data).children[0]), 0);
     } else { // ajax datasource
       let spinner = document.createElement('i');
 
       spinner.setAttribute('class', 'fa fa-circle-o-notch fa-spin spinner');
-      chart.appendChild(spinner);
+      this.appendChild(spinner);
       this._getJSON(data)
       .then(function (resp) {
-        that.buildHierarchy(chart, opts.ajaxURL ? resp : that._attachRel(resp, '00'), 0);
+        that.buildHierarchy(that, opts.ajaxURL ? resp : that._attachRel(resp, '00'), 0);
       })
       .catch(function (err) {
         console.error('failed to fetch datasource for orgchart', err);
       })
       .finally(function () {
-        let spinner = chart.querySelector('.spinner');
+        let spinner = that.querySelector('.spinner');
 
         spinner.parentNode.removeChild(spinner);
       });
     }
-    chart.addEventListener('click', this._clickChart.bind(this));
-    // append the export button to the chart-container
-    if (opts.exportButton && !chartContainer.querySelector('.oc-export-btn')) {
-      let exportBtn = document.createElement('button'),
-        downloadBtn = document.createElement('a');
+    this.addEventListener('click', this._clickChart.bind(this));
 
-      exportBtn.setAttribute('class', 'oc-export-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''));
-      exportBtn.innerHTML = 'Export';
-      exportBtn.addEventListener('click', this._clickExportButton.bind(this));
-      downloadBtn.setAttribute('class', 'oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''));
-      downloadBtn.setAttribute('download', opts.exportFilename + '.png');
-      chartContainer.appendChild(exportBtn);
-      chartContainer.appendChild(downloadBtn);
-    }
 
-    if (opts.pan) {
+    if (opts.pan && opts.chartContainer) {
+      let chartContainer = document.querySelector(opts.chartContainer);
+
       chartContainer.style.overflow = 'hidden';
-      chart.addEventListener('mousedown', this._onPanStart.bind(this));
-      chart.addEventListener('touchstart', this._onPanStart.bind(this));
+      this.addEventListener('mousedown', this._onPanStart.bind(this));
+      this.addEventListener('touchstart', this._onPanStart.bind(this));
       document.body.addEventListener('mouseup', this._onPanEnd.bind(this));
       document.body.addEventListener('touchend', this._onPanEnd.bind(this));
     }
 
-    if (opts.zoom) {
+    if (opts.zoom && opts.chartContainer) {
+      let chartContainer = document.querySelector(opts.chartContainer);
+
       chartContainer.addEventListener('wheel', this._onWheeling.bind(this));
       chartContainer.addEventListener('touchstart', this._onTouchStart.bind(this));
       document.body.addEventListener('touchmove', this._onTouchMove.bind(this));
       document.body.addEventListener('touchend', this._onTouchEnd.bind(this));
     }
-
-    chartContainer.appendChild(chart);
   }
   connectedCallback() {
 
@@ -112,7 +97,7 @@ export default class OrgChart extends HTMLElement {
   }
 
   _closest(el, fn) {
-    return el && ((fn(el) && el !== this.chart) ? el : this._closest(el.parentNode, fn));
+    return el && ((fn(el) && el !== this) ? el : this._closest(el.parentNode, fn));
   }
   _siblings(el, expr) {
     return Array.from(el.parentNode.children).filter((child) => {
@@ -371,7 +356,7 @@ export default class OrgChart extends HTMLElement {
   // define node click event handler
   _clickNode(event) {
     let clickedNode = event.currentTarget,
-      focusedNode = this.chart.querySelector('.focused');
+      focusedNode = this.querySelector('.focused');
 
     if (focusedNode) {
       focusedNode.classList.remove('focused');
@@ -386,8 +371,6 @@ export default class OrgChart extends HTMLElement {
     nodeData.relationship = '001';
     this._createNode(nodeData, 0)
       .then(function (nodeDiv) {
-        let chart = that.chart;
-
         nodeDiv.classList.remove('slide-up');
         nodeDiv.classList.add('slide-down');
         let parentTr = document.createElement('tr'),
@@ -408,8 +391,8 @@ export default class OrgChart extends HTMLElement {
         childrenTr.innerHTML = `<td colspan="2"></td>`;
         table.appendChild(childrenTr);
         table.querySelector('td').appendChild(nodeDiv);
-        chart.insertBefore(table, chart.children[0]);
-        table.children[3].children[0].appendChild(chart.lastChild);
+        that.insertBefore(table, that.children[0]);
+        table.children[3].children[0].appendChild(that.lastChild);
         callback();
       })
       .catch(function (err) {
@@ -501,7 +484,7 @@ export default class OrgChart extends HTMLElement {
 
     siblings.forEach((sib) => {
       if (sib.querySelector('.spinner')) {
-        this.chart.dataset.inAjax = false;
+        this.dataset.inAjax = false;
       }
     });
 
@@ -598,7 +581,7 @@ export default class OrgChart extends HTMLElement {
     }).parentNode.children).slice(0, 3);
 
     if (temp[0].querySelector('.spinner')) {
-      this.chart.dataset.inAjax = false;
+      this.dataset.inAjax = false;
     }
     // hide the sibling nodes
     if (this._getNodeState(node, 'siblings').visible) {
@@ -641,10 +624,9 @@ export default class OrgChart extends HTMLElement {
   }
   // start up loading status for requesting new nodes
   _startLoading(arrow, node) {
-    let opts = this.options,
-      chart = this.chart;
+    let opts = this.options;
 
-    if (typeof chart.dataset.inAjax !== 'undefined' && chart.dataset.inAjax === 'true') {
+    if (typeof this.dataset.inAjax !== 'undefined' && this.dataset.inAjax === 'true') {
       return false;
     }
 
@@ -654,14 +636,8 @@ export default class OrgChart extends HTMLElement {
     spinner.setAttribute('class', 'fa fa-circle-o-notch fa-spin spinner');
     node.appendChild(spinner);
     this._addClass(Array.from(node.querySelectorAll(':scope > *:not(.spinner)')), 'hazy');
-    chart.dataset.inAjax = true;
+    this.dataset.inAjax = true;
 
-    let exportBtn = this.chartContainer.querySelector('.oc-export-btn' +
-      (opts.chartClass !== '' ? '.' + opts.chartClass : ''));
-
-    if (exportBtn) {
-      exportBtn.disabled = true;
-    }
     return true;
   }
   // terminate loading status for requesting new nodes
@@ -671,13 +647,7 @@ export default class OrgChart extends HTMLElement {
     arrow.classList.remove('hidden');
     node.querySelector(':scope > .spinner').remove();
     this._removeClass(Array.from(node.querySelectorAll(':scope > .hazy')), 'hazy');
-    this.chart.dataset.inAjax = false;
-    let exportBtn = this.chartContainer.querySelector('.oc-export-btn' +
-      (opts.chartClass !== '' ? '.' + opts.chartClass : ''));
-
-    if (exportBtn) {
-      exportBtn.disabled = false;
-    }
+    this.dataset.inAjax = false;
   }
   // define click event handler for the top edge
   _clickTopEdge(event) {
@@ -717,7 +687,7 @@ export default class OrgChart extends HTMLElement {
         this._getJSON(typeof opts.ajaxURL.parent === 'function' ?
           opts.ajaxURL.parent(node.dataset.source) : opts.ajaxURL.parent + nodeId)
         .then(function (resp) {
-          if (that.chart.dataset.inAjax === 'true') {
+          if (that.dataset.inAjax === 'true') {
             if (Object.keys(resp).length) {
               that.addParent(node, resp);
             }
@@ -740,7 +710,7 @@ export default class OrgChart extends HTMLElement {
       lines = [];
 
     if (lastItem.querySelector('.spinner')) {
-      this.chart.dataset.inAjax = false;
+      this.dataset.inAjax = false;
     }
     let descendants = Array.from(lastItem.querySelectorAll('.node')).filter((el) => that._isVisible(el)),
       isVerticalDesc = lastItem.classList.contains('verticalNodes');
@@ -816,7 +786,7 @@ export default class OrgChart extends HTMLElement {
       opts = this.options,
       count = 0;
 
-    this.chart.dataset.inEdit = 'addChildren';
+    this.dataset.inEdit = 'addChildren';
     this._buildChildNode.call(this, this._closest(node, (el) => el.nodeName === 'TABLE'), data, function () {
       if (++count === data.children.length) {
         if (!node.querySelector('.bottomEdge')) {
@@ -832,7 +802,7 @@ export default class OrgChart extends HTMLElement {
           node.querySelector(':scope > .title').appendChild(symbol);
         }
         that.showChildren(node);
-        that.chart.dataset.inEdit = '';
+        that.dataset.inEdit = '';
       }
     });
   }
@@ -866,7 +836,7 @@ export default class OrgChart extends HTMLElement {
         this._getJSON(typeof opts.ajaxURL.children === 'function' ?
           opts.ajaxURL.children(node.dataset.source) : opts.ajaxURL.children + nodeId)
         .then(function (resp) {
-          if (that.chart.dataset.inAjax === 'true') {
+          if (that.dataset.inAjax === 'true') {
             if (resp.children.length) {
               that.addChildren(node, resp);
             }
@@ -951,7 +921,7 @@ export default class OrgChart extends HTMLElement {
     } else { // build the sibling nodes and parent node for the specific ndoe
       let nodeCount = 0;
 
-      that.buildHierarchy.call(that, that.chart, nodeData, 0, () => {
+      that.buildHierarchy.call(that, that, nodeData, 0, () => {
         if (++nodeCount === siblingCount) {
           let temp = nodeChart.nextElementSibling.children[3]
             .children[insertPostion],
@@ -981,7 +951,7 @@ export default class OrgChart extends HTMLElement {
   addSiblings(node, data) {
     let that = this;
 
-    this.chart.dataset.inEdit = 'addSiblings';
+    this.dataset.inEdit = 'addSiblings';
     this._buildSiblingNode.call(this, this._closest(node, (el) => el.nodeName === 'TABLE'), data, () => {
       that._closest(node, (el) => el.classList && el.classList.contains('nodes'))
         .dataset.siblingsLoaded = true;
@@ -995,7 +965,7 @@ export default class OrgChart extends HTMLElement {
         node.appendChild(leftEdge);
       }
       that.showSiblings(node);
-      that.chart.dataset.inEdit = '';
+      that.dataset.inEdit = '';
     });
   }
   removeNodes(node) {
@@ -1074,7 +1044,7 @@ export default class OrgChart extends HTMLElement {
       if (this._startLoading(hEdge, node)) {
         this._getJSON(url)
         .then(function (resp) {
-          if (that.chart.dataset.inAjax === 'true') {
+          if (that.dataset.inAjax === 'true') {
             if (resp.siblings || resp.children) {
               that.addSiblings(node, resp);
             }
@@ -1153,7 +1123,7 @@ export default class OrgChart extends HTMLElement {
       event.dataTransfer.setData('text/html', 'hack for firefox');
     }
     // if users enable zoom or direction options
-    if (this.chart.style.transform) {
+    if (this.style.transform) {
       let ghostNode, nodeCover;
 
       if (!document.querySelector('.ghost-node')) {
@@ -1161,12 +1131,12 @@ export default class OrgChart extends HTMLElement {
         ghostNode.classList.add('ghost-node');
         nodeCover = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         ghostNode.appendChild(nodeCover);
-        this.chart.appendChild(ghostNode);
+        this.appendChild(ghostNode);
       } else {
-        ghostNode = this.chart.querySelector(':scope > .ghost-node');
+        ghostNode = this.querySelector(':scope > .ghost-node');
         nodeCover = ghostNode.children[0];
       }
-      let transValues = this.chart.style.transform.split(','),
+      let transValues = this.style.transform.split(','),
         scale = Math.abs(window.parseFloat((opts.direction === 't2b' || opts.direction === 'b2t') ?
           transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
 
@@ -1212,7 +1182,7 @@ export default class OrgChart extends HTMLElement {
       }).querySelectorAll('.node'));
 
     this.dragged = dragged;
-    Array.from(this.chart.querySelectorAll('.node')).forEach(function (node) {
+    Array.from(this.querySelectorAll('.node')).forEach(function (node) {
       if (!dragHier.includes(node)) {
         if (opts.dropCriteria) {
           if (opts.dropCriteria(dragged, dragZone, node)) {
@@ -1233,19 +1203,18 @@ export default class OrgChart extends HTMLElement {
     }
   }
   _onDragEnd(event) {
-    Array.from(this.chart.querySelectorAll('.allowedDrop')).forEach(function (el) {
+    Array.from(this.querySelectorAll('.allowedDrop')).forEach(function (el) {
       el.classList.remove('allowedDrop');
     });
   }
   _onDrop(event) {
     let dropZone = event.currentTarget,
-      chart = this.chart,
       dragged = this.dragged,
       dragZone = this._closest(dragged, function (el) {
         return el.classList && el.classList.contains('nodes');
       }).parentNode.children[0].children[0];
 
-    this._removeClass(Array.from(chart.querySelectorAll('.allowedDrop')), 'allowedDrop');
+    this._removeClass(Array.from(this.querySelectorAll('.allowedDrop')), 'allowedDrop');
     // firstly, deal with the hierarchy of drop zone
     if (!dropZone.parentNode.parentNode.nextElementSibling) { // if the drop zone is a leaf node
       let bottomEdge = document.createElement('i');
@@ -1346,7 +1315,7 @@ export default class OrgChart extends HTMLElement {
       'dropZone': dropZone
     }});
 
-    chart.dispatchEvent(customE);
+    this.dispatchEvent(customE);
   }
   // create node
   _createNode(nodeData, level) {
@@ -1368,7 +1337,7 @@ export default class OrgChart extends HTMLElement {
       if (nodeData[opts.nodeId]) {
         nodeDiv.id = nodeData[opts.nodeId];
       }
-      let inEdit = that.chart.dataset.inEdit,
+      let inEdit = that.dataset.inEdit,
         isHidden;
 
       if (inEdit) {
@@ -1485,7 +1454,7 @@ export default class OrgChart extends HTMLElement {
       }
       let isHidden,
         isVerticalLayer = opts.verticalDepth && (level + 2) >= opts.verticalDepth,
-        inEdit = that.chart.dataset.inEdit;
+        inEdit = that.dataset.inEdit;
 
       if (inEdit) {
         isHidden = inEdit === 'addSiblings' ? '' : ' hidden';
@@ -1560,49 +1529,9 @@ export default class OrgChart extends HTMLElement {
       return el.classList && el.classList.contains('node');
     });
 
-    if (!closestNode && this.chart.querySelector('.node.focused')) {
-      this.chart.querySelector('.node.focused').classList.remove('focused');
+    if (!closestNode && this.querySelector('.node.focused')) {
+      this.querySelector('.node.focused').classList.remove('focused');
     }
-  }
-  _clickExportButton() {
-    let opts = this.options,
-      chartContainer = this.chartContainer,
-      mask = chartContainer.querySelector(':scope > .mask'),
-      sourceChart = chartContainer.querySelector('.orgchart:not(.hidden)'),
-      flag = opts.direction === 'l2r' || opts.direction === 'r2l';
-
-    if (!mask) {
-      mask = document.createElement('div');
-      mask.setAttribute('class', 'mask');
-      mask.innerHTML = `<i class="fa fa-circle-o-notch fa-spin spinner"></i>`;
-      chartContainer.appendChild(mask);
-    } else {
-      mask.classList.remove('hidden');
-    }
-    chartContainer.classList.add('canvasContainer');
-    window.html2canvas(sourceChart, {
-      'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
-      'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
-      'onclone': function (cloneDoc) {
-        let canvasContainer = cloneDoc.querySelector('.canvasContainer');
-
-        canvasContainer.style.overflow = 'visible';
-        canvasContainer.querySelector('.orgchart:not(.hidden)').transform = '';
-      }
-    })
-    .then((canvas) => {
-      let downloadBtn = chartContainer.querySelector('.oc-download-btn');
-
-      chartContainer.querySelector('.mask').classList.add('hidden');
-      downloadBtn.setAttribute('href', canvas.toDataURL());
-      downloadBtn.click();
-    })
-    .catch((err) => {
-      console.error('Failed to export the curent orgchart!', err);
-    })
-    .finally(() => {
-      chartContainer.classList.remove('canvasContainer');
-    });
   }
   _loopChart(chart) {
     let subObj = { 'id': chart.querySelector('.node').id };
@@ -1616,10 +1545,10 @@ export default class OrgChart extends HTMLElement {
     return subObj;
   }
   getHierarchy() {
-    if (!this.chart.querySelector('.node').id) {
+    if (!this.querySelector('.node').id) {
       return 'Error: Nodes of orghcart to be exported must have id attribute!';
     }
-    return this._loopChart(this.chart.querySelector('table'));
+    return this._loopChart(this.querySelector('table'));
   }
   _onPanStart(event) {
     let chart = event.currentTarget;
@@ -1706,11 +1635,9 @@ export default class OrgChart extends HTMLElement {
     }
   }
   _onPanEnd(event) {
-    let chart = this.chart;
-
-    if (chart.dataset.panning === 'true') {
-      chart.dataset.panning = false;
-      chart.style.cursor = 'default';
+    if (this.dataset.panning === 'true') {
+      this.dataset.panning = false;
+      this.style.cursor = 'default';
       document.body.removeEventListener('mousemove', this._onPanning);
       document.body.removeEventListener('touchmove', this._onPanning);
     }
@@ -1738,7 +1665,7 @@ export default class OrgChart extends HTMLElement {
 
     let newScale = event.deltaY > 0 ? 0.8 : 1.2;
 
-    this._setChartScale(this.chart, newScale);
+    this._setChartScale(this, newScale);
   }
   _getPinchDist(event) {
     return Math.sqrt((event.touches[0].clientX - event.touches[1].clientX) *
@@ -1747,35 +1674,29 @@ export default class OrgChart extends HTMLElement {
       (event.touches[0].clientY - event.touches[1].clientY));
   }
   _onTouchStart(event) {
-    let chart = this.chart;
-
     if (event.touches && event.touches.length === 2) {
       let dist = this._getPinchDist(event);
 
-      chart.dataset.pinching = true;
-      chart.dataset.pinchDistStart = dist;
+      this.dataset.pinching = true;
+      this.dataset.pinchDistStart = dist;
     }
   }
   _onTouchMove(event) {
-    let chart = this.chart;
-
-    if (chart.dataset.pinching) {
+    if (this.dataset.pinching) {
       let dist = this._getPinchDist(event);
 
-      chart.dataset.pinchDistEnd = dist;
+      this.dataset.pinchDistEnd = dist;
     }
   }
   _onTouchEnd(event) {
-    let chart = this.chart;
-
-    if (chart.dataset.pinching) {
-      chart.dataset.pinching = false;
-      let diff = chart.dataset.pinchDistEnd - chart.dataset.pinchDistStart;
+    if (this.dataset.pinching) {
+      this.dataset.pinching = false;
+      let diff = this.dataset.pinchDistEnd - this.dataset.pinchDistStart;
 
       if (diff > 0) {
-        this._setChartScale(chart, 1);
+        this._setChartScale(this, 1);
       } else if (diff < 0) {
-        this._setChartScale(chart, -1);
+        this._setChartScale(this, -1);
       }
     }
   }
