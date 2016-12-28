@@ -52,13 +52,13 @@ gulp.task('eslint', function () {
 
 gulp.task('js', ['eslint', 'cleanJS'], function () {
   return gulp.src(['src/*.js'])
-    // .pipe(sourcemaps.init())
+    .pipe(sourcemaps.init())
     .pipe(babel(
       {presets: ['es2015']}
     ))
-    // .pipe(uglify())
+    .pipe(uglify())
     .pipe(rename('orgchart-webcomponents.min.js'))
-    // .pipe(sourcemaps.write())
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest('build/js'))
     .pipe(gulp.dest('demo/js'));
 });
