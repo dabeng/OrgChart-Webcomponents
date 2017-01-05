@@ -33,13 +33,36 @@ export default class OrgChart extends HTMLElement {
         'pan': false,
         'zoom': false
       },
-      opts = Object.assign(defaultOptions, options),
-      data = opts.data,
-      chart = document.createElement('div');
+      opts = Object.assign(defaultOptions, options);
 
     this.options = opts;
-    delete this.options.data;
-    this.dataset.options = JSON.stringify(opts);
+
+    this.addEventListener('click', this._clickChart.bind(this));
+
+    if (opts.pan && opts.chartContainer) {
+      let chartContainer = document.querySelector(opts.chartContainer);
+
+      chartContainer.style.overflow = 'hidden';
+      this.addEventListener('mousedown', this._onPanStart.bind(this));
+      this.addEventListener('touchstart', this._onPanStart.bind(this));
+      document.body.addEventListener('mouseup', this._onPanEnd.bind(this));
+      document.body.addEventListener('touchend', this._onPanEnd.bind(this));
+    }
+
+    if (opts.zoom && opts.chartContainer) {
+      let chartContainer = document.querySelector(opts.chartContainer);
+
+      chartContainer.addEventListener('wheel', this._onWheeling.bind(this));
+      chartContainer.addEventListener('touchstart', this._onTouchStart.bind(this));
+      document.body.addEventListener('touchmove', this._onTouchMove.bind(this));
+      document.body.addEventListener('touchend', this._onTouchEnd.bind(this));
+    }
+  }
+  connectedCallback() {
+    let that = this,
+      opts = this.options,
+      data = opts.data;
+
     this.setAttribute('class', 'orgchart' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') +
       (opts.direction !== 't2b' ? ' ' + opts.direction : ''));
     if (typeof data === 'object') { // local json datasource
@@ -64,30 +87,6 @@ export default class OrgChart extends HTMLElement {
         spinner.parentNode.removeChild(spinner);
       });
     }
-    this.addEventListener('click', this._clickChart.bind(this));
-
-
-    if (opts.pan && opts.chartContainer) {
-      let chartContainer = document.querySelector(opts.chartContainer);
-
-      chartContainer.style.overflow = 'hidden';
-      this.addEventListener('mousedown', this._onPanStart.bind(this));
-      this.addEventListener('touchstart', this._onPanStart.bind(this));
-      document.body.addEventListener('mouseup', this._onPanEnd.bind(this));
-      document.body.addEventListener('touchend', this._onPanEnd.bind(this));
-    }
-
-    if (opts.zoom && opts.chartContainer) {
-      let chartContainer = document.querySelector(opts.chartContainer);
-
-      chartContainer.addEventListener('wheel', this._onWheeling.bind(this));
-      chartContainer.addEventListener('touchstart', this._onTouchStart.bind(this));
-      document.body.addEventListener('touchmove', this._onTouchMove.bind(this));
-      document.body.addEventListener('touchend', this._onTouchEnd.bind(this));
-    }
-  }
-  connectedCallback() {
-
   }
   disconnectedCallback() {
 
