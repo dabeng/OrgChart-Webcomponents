@@ -88,9 +88,11 @@ export default class OrgChart extends HTMLElement {
       });
     }
   }
+
   disconnectedCallback() {
 
   }
+
   attributeChangedCallback(attrName, oldVal, newVal) {
 
   }
