@@ -1,7 +1,8 @@
 ![OrgChart](http://dabeng.github.io/OrgChart-Webcomponents/img/orgchart-heading.png)
 
-# [Perhaps you'd prefer the native js(ES2015) version](http://github.com/dabeng/OrgChart-Webcomponents) :blush:
-# [Perhaps you'd prefer the jQuery version](http://github.com/dabeng/OrgChart) :blush:
+# [Vue.js Version](https://github.com/dabeng/vue-orgchart)
+# [Native JS(ES2015) Version](http://github.com/dabeng/OrgChart-Webcomponents)
+# [jQuery Version](http://github.com/dabeng/OrgChart)
 
 ## Foreword
 - First of all, thanks a lot for [wesnolte](https://github.com/wesnolte)'s great work:blush: -- [jOrgChart](https://github.com/wesnolte/jOrgChart). The thought that using nested tables to build out the tree-like orgonization chart is amazing. This idea is more simple and direct than its counterparts based on svg.
