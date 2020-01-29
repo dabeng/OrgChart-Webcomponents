@@ -369,7 +369,7 @@ export default class OrgChart extends HTMLElement {
     let that = this,
       table = document.createElement('table');
 
-    nodeData.relationship = '001';
+    nodeData.relationship = nodeData.relationship || '001';
     this._createNode(nodeData, 0)
       .then(function (nodeDiv) {
         nodeDiv.classList.remove('slide-up');
