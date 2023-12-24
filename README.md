@@ -1,7 +1,7 @@
 ![OrgChart](http://dabeng.github.io/OrgChart-Webcomponents/img/orgchart-heading.png)
 
 # [jQuery Version](http://github.com/dabeng/OrgChart)
-# [ES6 Version](http://github.com/dabeng/OrgChart-Webcomponents)
+# [ES6 Version](http://github.com/dabeng/OrgChart.js)
 # [Vue.js Version](https://github.com/dabeng/vue-orgchart)
 # [Angular Version](https://github.com/dabeng/ng-orgchart)
 # [React Version](https://github.com/dabeng/react-orgchart)
